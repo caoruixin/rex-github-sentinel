@@ -11,7 +11,8 @@ class LLM:
 
     def generate_daily_report(self, markdown_content, dry_run=False):
         # 构建一个用于生成报告的提示文本，要求生成的报告包含新增功能、主要改进和问题修复
-        prompt = f"以下是项目的最新进展，根据功能合并同类项，形成一份简报，至少包含：1）新增功能；2）主要改进；3）修复问题；:\n\n{markdown_content}"
+        #prompt = f"以下是项目的最新进展，根据功能合并同类项，形成一份简报，至少包含：1）新增功能；2）主要改进；3）修复问题；:\n\n{markdown_content}"
+        prompt = f"The latest progress of repo are given :\n\n{markdown_content}"
         
         if dry_run:
             # 如果启用了dry_run模式，将不会调用模型，而是将提示信息保存到文件中
@@ -29,6 +30,17 @@ class LLM:
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",  # 指定使用的模型版本
                 messages=[
+                    {
+                        "role": "system", 
+                        "content": (
+                            """#Role: You are a helpful senior full stack architect.
+                            ##skill: be good at the track and analyze the updates of github repos, including PR, issue, commits,
+                            can help the others to get insight from the changes happened in time.
+                            for each given repo (including the filter conditions, e.g.: state, date range etc),
+                            you can output a clear and concret report in markdown format, including 1)new features 2)main updates 3)issues fixed and so on.
+                            The report always use Chinese as default """
+                        )
+                    },   # 提供系统角色的初始指令
                     {"role": "user", "content": prompt}  # 提交用户角色的消息
                 ]
             )
