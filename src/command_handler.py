@@ -36,6 +36,13 @@ class CommandHandler:
         parser_export_range.add_argument('days', type=int, help='The number of days to export progress for')
         parser_export_range.set_defaults(func=self.export_progress_by_date_range)
 
+        parser_export_since_until = subparsers.add_parser('export-since-until', help='Exported progress from since to until for repository')
+        parser_export_since_until.add_argument('repo', type=str, help='The repository to export progress from (e.g., owner/repo)')
+        parser_export_since_until.add_argument('since', type=str, help='The start date (YYYY-MM-DD)')
+        parser_export_since_until.add_argument('until', type=str, help='The end date (YYYY-MM-DD)')
+        parser_export_since_until.set_defaults(func=self.export_progress_by_since_until)
+
+
         parser_generate = subparsers.add_parser('generate', help='Generate daily report from markdown file')
         parser_generate.add_argument('file', type=str, help='The markdown file to generate report from')
         parser_generate.set_defaults(func=self.generate_daily_report)
@@ -66,6 +73,10 @@ class CommandHandler:
     def export_progress_by_date_range(self, args):
         self.github_client.export_progress_by_date_range(args.repo, days=args.days)
         print(f"Exported progress for the last {args.days} days for repository: {args.repo}")
+
+    def export_progress_by_since_until(self, args):
+        self.github_client.export_progress_by_since_until(args.repo, since=args.since, until=args.until )
+        print(f"Exported progress from since to until for repository: {args.repo}")
 
     def generate_daily_report(self, args):
         self.report_generator.generate_daily_report(args.file)
