@@ -1,37 +1,22 @@
 # src/command_handler.py
 
 import argparse  # 导入argparse库，用于处理命令行参数解析
-import os
-from datetime import datetime  # 导入 datetime 模块用于获取当前日期
 
 class CommandHandler:
-    def __init__(self, github_client, subscription_manager, report_generator, hacker_news_client):
+    def __init__(self, github_client, subscription_manager, report_generator):
         # 初始化CommandHandler，接收GitHub客户端、订阅管理器和报告生成器
         self.github_client = github_client
         self.subscription_manager = subscription_manager
         self.report_generator = report_generator
         self.parser = self.create_parser()  # 创建命令行解析器
-        ''''add hack news support'''
-        self.hacker_news_client = hacker_news_client
 
     def create_parser(self):
         # 创建并配置命令行解析器
         parser = argparse.ArgumentParser(
-            description='GitHub & HackNews Sentinel Command Line Interface',
+            description='GitHub Sentinel Command Line Interface',
             formatter_class=argparse.RawTextHelpFormatter
         )
         subparsers = parser.add_subparsers(title='Commands', dest='command')
-
-        '''add some hack news gen command'''
-        parser_export_hn = subparsers.add_parser('export-hn', help='export daily hacknews topics')
-        parser_export_hn.set_defaults(func=self.export_hn_topics)
-
-        parser_generate_hn_report = subparsers.add_parser('generate-hn', help='generate hacknews topics report for today')
-        parser_generate_hn_report.set_defaults(func=self.generate_hn_daily_report)
-        
-        parser_generate_hn_topic_report = subparsers.add_parser('generate-hn-topic', help='generate hacknews topics report')
-        parser_generate_hn_topic_report.add_argument('mdfile', type=str, help='The markdown file path for generateing report')
-        parser_generate_hn_topic_report.set_defaults(func=self.generate_hn_topic_report)
 
         # 添加订阅命令
         parser_add = subparsers.add_parser('add', help='Add a subscription')
@@ -98,21 +83,3 @@ class CommandHandler:
 
     def print_help(self, args=None):
         self.parser.print_help()  # 输出帮助信息
-
-    def export_hn_topics(self, args):
-        markdown_file_path = self.hacker_news_client.export_top_stories()
-        print("Exported top Hacker News stories.")
-        print(markdown_file_path)
-    
-    def generate_hn_daily_report(self, args):
-        # 获取当前日期，并格式化为 'YYYY-MM-DD' 格式
-        date = datetime.now().strftime('%Y-%m-%d')
-        # 生成每日汇总报告的目录路径
-        directory_path = os.path.join('hacker_news', date)
-        # 生成每日汇总报告并保存
-        report, _ = self.report_generator.generate_hn_daily_report(directory_path)
-        print("Generated daily report for Hacker News.")
-
-    def generate_hn_topic_report(self, args):
-        _, _ = self.report_generator.generate_hn_topic_report(args.mdfile)
-        print("Generated topic report for Hacker News.")

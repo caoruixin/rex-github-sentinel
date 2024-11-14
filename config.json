@@ -1,19 +1,19 @@
 {
     "github": {
-        "token": "your_github_token",
+        "token": "you-token-here",
         "subscriptions_file": "subscriptions.json",
         "progress_frequency_days": 1,
         "progress_execution_time": "08:00"
     },
     "email":  {
-        "smtp_server": "smtp.exmail.qq.com",
+        "smtp_server": "smtp.163.com",
         "smtp_port": 465,
-        "from": "pjt@zaijidata.com",
-        "password": "",
-        "to": "test@zaijidata.com"
+        "from": "pinecone1028@163.com",
+        "password": "WPSeSFY5FtgW4aAN",
+        "to": "pinecone1028@163.com"
     },
     "llm": {
-        "model_type": "ollama",
+        "model_type": "openai",
         "openai_model_name": "gpt-4o-mini",
         "ollama_model_name": "llama3.1",
         "ollama_api_url": "http://localhost:11434/api/chat"

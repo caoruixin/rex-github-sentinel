@@ -8,20 +8,29 @@ from subscription_manager import SubscriptionManager  # 从subscription_manager�
 from command_handler import CommandHandler  # 从command_handler模块导入CommandHandler类，处理命令行命令
 from logger import LOG  # 从logger模块导入LOG对象，用于日志记录
 
+from hacker_news_client import HackerNewsClient #add support
+
 def main():
     config = Config()  # 创建配置实例
+    
+    LOG.info("tst token." + config.github_token)
+
     github_client = GitHubClient(config.github_token)  # 创建GitHub客户端实例
     llm = LLM(config)  # 创建语言模型实例
     report_generator = ReportGenerator(llm, config.report_types)  # 创建报告生成器实例
     subscription_manager = SubscriptionManager(config.subscriptions_file)  # 创建订阅管理器实例
-    command_handler = CommandHandler(github_client, subscription_manager, report_generator)  # 创建命令处理器实例
+
+    ''' add hacker news support'''
+    hacker_news_client = HackerNewsClient()
+
+    command_handler = CommandHandler(github_client, subscription_manager, report_generator,hacker_news_client)  # 创建命令处理器实例
     
     parser = command_handler.parser  # 获取命令解析器
     command_handler.print_help()  # 打印帮助信息
 
     while True:
         try:
-            user_input = input("GitHub Sentinel> ")  # 等待用户输入
+            user_input = input("GitHub & HackNews Sentinel> ")  # 等待用户输入
             if user_input in ['exit', 'quit']:  # 如果输入为退出命令，则结束循环
                 break
             try:

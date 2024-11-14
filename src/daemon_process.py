@@ -66,6 +66,7 @@ def main():
 
     # 启动时立即执行（如不需要可注释）
     # github_job(subscription_manager, github_client, report_generator, notifier, config.freq_days)
+    hn_topic_job(hacker_news_client, report_generator)
     hn_daily_job(hacker_news_client, report_generator, notifier)
 
     # 安排 GitHub 的定时任务

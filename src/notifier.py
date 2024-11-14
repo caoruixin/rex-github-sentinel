@@ -58,9 +58,9 @@ if __name__ == '__main__':
     notifier = Notifier(config.email)
 
     # 测试 GitHub 报告邮件通知
-    test_repo = "DjangoPeng/openai-quickstart"
+    test_repo = "caoruixin/rex-github-sentinel"
     test_report = """
-# DjangoPeng/openai-quickstart 项目进展
+# caoruixin/rex-github-sentinel 项目进展
 
 ## 时间周期：2024-08-24
 
