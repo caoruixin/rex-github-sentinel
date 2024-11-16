@@ -21,7 +21,9 @@
     "report_types": [
         "github",
         "hacker_news_hours_topic",
-        "hacker_news_daily_report"
+        "hacker_news_daily_report",
+        "dogecoin_hours_topic",
+        "dogecoin_daily_report"
     ],
     "slack": {
         "webhook_url": "your_slack_webhook_url"

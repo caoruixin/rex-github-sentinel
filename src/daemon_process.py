@@ -13,6 +13,7 @@ from report_generator import ReportGenerator  # 导入报告生成器类
 from llm import LLM  # 导入语言模型类，可能用于生成报告内容
 from subscription_manager import SubscriptionManager  # 导入订阅管理器类，管理GitHub仓库订阅
 from logger import LOG  # 导入日志记录器
+from dogecoin_news_client import DogeNewsClient  # 导入 Dogecoin 客户端
 
 
 def graceful_shutdown(signum, frame):
@@ -51,6 +52,24 @@ def hn_daily_job(hacker_news_client, report_generator, notifier):
     notifier.notify_hn_report(date, report)
     LOG.info(f"[定时任务执行完毕]")
 
+# 新增：生成 Dogecoin 热点话题报告
+def dc_topic_job(dogecoin_news_client, report_generator):
+    LOG.info("[开始执行定时任务]Dogecoin 热点话题跟踪")
+    markdown_file_path = dogecoin_news_client.export_top_news()  # 获取 Dogecoin 的热点新闻
+    _, _ = report_generator.generate_dc_topic_report(markdown_file_path)  # 生成并获取报告内容及文件路径
+    LOG.info(f"[定时任务执行完毕]")
+
+# 新增：生成 Dogecoin 每日汇总报告
+def dc_daily_job(dogecoin_news_client, report_generator, notifier):
+    LOG.info("[开始执行定时任务]Dogecoin 每日汇总报告")
+    # 获取当前日期，并格式化为 'YYYY-MM-DD' 格式
+    date = datetime.now().strftime('%Y-%m-%d')
+    # 生成每日汇总报告的目录路径
+    directory_path = os.path.join('dogecoin_top_news', date)
+    # 生成每日汇总报告并保存
+    report, _ = report_generator.generate_dc_daily_report(directory_path)
+    notifier.notify_dc_report(date, report)
+    LOG.info(f"[定时任务执行完毕]")
 
 def main():
     # 设置信号处理器
@@ -59,6 +78,9 @@ def main():
     config = Config()  # 创建配置实例
     github_client = GitHubClient(config.github_token)  # 创建GitHub客户端实例
     hacker_news_client = HackerNewsClient() # 创建 Hacker News 客户端实例
+
+    dogecoin_news_client = DogeNewsClient()  # 创建 Dogecoin 客户端实例
+
     notifier = Notifier(config.email)  # 创建通知器实例
     llm = LLM(config)  # 创建语言模型实例
     report_generator = ReportGenerator(llm, config.report_types)  # 创建报告生成器实例
@@ -68,6 +90,9 @@ def main():
     # github_job(subscription_manager, github_client, report_generator, notifier, config.freq_days)
     hn_topic_job(hacker_news_client, report_generator)
     hn_daily_job(hacker_news_client, report_generator, notifier)
+
+    dc_topic_job(dogecoin_news_client, report_generator)
+    dc_daily_job(dogecoin_news_client, report_generator, notifier)
 
     # 安排 GitHub 的定时任务
     schedule.every(config.freq_days).days.at(
@@ -79,6 +104,12 @@ def main():
 
     # 安排 hn_daily_job 每天早上10点执行一次
     schedule.every().day.at("10:00").do(hn_daily_job, hacker_news_client, report_generator, notifier)
+
+
+    # 安排 Dogecoin 的定时任务
+    schedule.every(4).hours.at(":00").do(dc_topic_job, dogecoin_news_client, report_generator)  # 每4小时执行一次
+    schedule.every().day.at("11:00").do(dc_daily_job, dogecoin_news_client, report_generator, notifier)  # 每天10点执行
+
 
     try:
         # 在守护进程中持续运行
