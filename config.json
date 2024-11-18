@@ -10,7 +10,7 @@
         "smtp_port": 465,
         "from": "pinecone1028@163.com",
         "password": "WPSeSFY5FtgW4aAN",
-        "to": "pinecone1028@163.com"
+        "to": ["pinecone1028@163.com","caoruixin@163.com"]
     },
     "llm": {
         "model_type": "ollama",

@@ -4,3 +4,6 @@ loguru==0.7.2
 markdown2==2.5.0
 openai==1.44.0
 schedule==1.2.2
+beautifulsoup4==4.12.3
+selenium==4.26.1
+webdriver-manager==4.0.2
