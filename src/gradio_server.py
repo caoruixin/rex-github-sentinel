@@ -77,7 +77,7 @@ def update_model_list(model_type):
 
 
 # 创建 Gradio 界面
-with gr.Blocks(title="GitHubSentinel") as demo:
+with gr.Blocks(title="GitHubdtinel") as demo:
     # 创建 GitHub 项目进展 Tab
     with gr.Tab("GitHub 项目进展"):
         gr.Markdown("## GitHub 项目进展")  # 添加小标题

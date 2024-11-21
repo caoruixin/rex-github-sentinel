@@ -12,6 +12,7 @@ class LLM:
         """
         self.config = config
         self.model = config.llm_model_type.lower()  # 获取模型类型并转换为小写
+        '''
         if self.model == "openai":
             self.client = OpenAI()  # 创建OpenAI客户端实例
         elif self.model == "ollama":
@@ -19,8 +20,18 @@ class LLM:
         else:
             LOG.error(f"不支持的模型类型: {self.model}")
             raise ValueError(f"不支持的模型类型: {self.model}")  # 如果模型类型不支持，抛出错误
+        '''
+        self.model_type_crypto = config.crypto_model_type.lower() #add crypto model
 
-    def generate_report(self, system_prompt, user_content):
+    def generate_report_for_crypto(self, system_prompt, user_content):
+        """
+        生成加密货币报告，根据配置选择不同的模型来处理请求。
+        """
+        gen_content = self.generate_report(system_prompt, user_content, self.model_type_crypto)
+        return gen_content
+        
+    
+    def generate_report(self, system_prompt, user_content, model_type=None):
         """
         生成报告，根据配置选择不同的模型来处理请求。
 
@@ -34,12 +45,23 @@ class LLM:
         ]
 
         # 根据选择的模型调用相应的生成报告方法
+        '''
         if self.model == "openai":
             return self._generate_report_openai(messages)
         elif self.model == "ollama":
             return self._generate_report_ollama(messages)
         else:
             raise ValueError(f"不支持的模型类型: {self.model}")
+        '''
+        if  model_type is None:
+            model_type = self.model
+
+        if model_type == "openai":
+            return self._generate_report_openai(messages)
+        elif model_type == "ollama":
+            return self._generate_report_ollama(messages)
+        else:
+            raise ValueError(f"不支持的模型类型: {model_type}")
 
     def _generate_report_openai(self, messages):
         """
@@ -49,6 +71,9 @@ class LLM:
         :return: 生成的报告内容。
         """
         LOG.info(f"使用 OpenAI {self.config.openai_model_name} 模型生成报告。")
+
+        self.client = OpenAI()  # 创建OpenAI客户端实例
+
         try:
             response = self.client.chat.completions.create(
                 model=self.config.openai_model_name,  # 使用配置中的OpenAI模型名称
@@ -68,6 +93,9 @@ class LLM:
         :return: 生成的报告内容。
         """
         LOG.info(f"使用 Ollama {self.config.ollama_model_name} 模型生成报告。")
+
+        self.api_url = self.config.ollama_api_url  # 设置Ollama API的URL
+
         try:
             payload = {
                 "model": self.config.ollama_model_name,  # 使用配置中的Ollama模型名称
@@ -112,3 +140,10 @@ if __name__ == '__main__':
     system_prompt = "Your specific system prompt for GitHub report generation"
     github_report = llm.generate_report(system_prompt, markdown_content)
     LOG.debug(github_report)
+    markdown_content_dc="""
+    1. [Bitcoin Native Meme Coin DOG Jumps to 5 Month High Amid Dogecoin Hype, Exchange Listing Hopedecrypt.co](https://cryptopanic.com/news/dogecoin/20259473/Bitcoin-Native-Meme-Coin-DOG-Jumps-to-5-Month-High-Amid-Dogecoin-Hype-Exchange-Listing-Hope)
+2. [Cathie Wood Draws Reagan-Era Parallels As Elon Musk Takes DOGE Helm: 'This Bull Market Has Just Begun To Broaden Out'feeds2.benzinga.com](https://cryptopanic.com/news/dogecoin/20259469/Cathie-Wood-Draws-Reagan-Era-Parallels-As-Elon-Musk-Takes-DOGE-Helm-This-Bull-Market-Has-Just-Begun-To-Broaden-Out)
+3. [Bitcoin, Ethereum, Dogecoin Slip As Fed's Hawkish Stance Tempers Rally: Analyst Expects BTC To Reach $100K Before New Yearfeeds2.benzinga.com](https://cryptopanic.com/news/dogecoin/20259270/
+    """
+    dc_report = llm.generate_report_for_crypto(system_prompt, markdown_content_dc)
+    LOG.debug(dc_report)

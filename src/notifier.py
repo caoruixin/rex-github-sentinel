@@ -16,7 +16,7 @@ class Notifier:
         """
         if self.email_settings:
             subject = f"[GitHub] {repo} 进展简报"
-            self.send_email(subject, report)
+            self.send_email_tech(subject, report)
         else:
             LOG.warning("邮件设置未配置正确，无法发送 GitHub 报告通知")
     
@@ -28,7 +28,7 @@ class Notifier:
         """
         if self.email_settings:
             subject = f"[HackerNews] {date} 技术趋势"
-            self.send_email(subject, report)
+            self.send_email_tech(subject, report)
         else:
             LOG.warning("邮件设置未配置正确，无法发送 Hacker News 报告通知")
 
@@ -40,15 +40,16 @@ class Notifier:
         """
         if self.email_settings:
             subject = f"[Dogecoin News] {date} 市场趋势"
-            self.send_email(subject, report)
+            self.send_email_crypto(subject, report)
         else:
             LOG.warning("邮件设置未配置正确，无法发送 Hacker News 报告通知")
     
-    def send_email(self, subject, report):
+    def send_email(self, subject, report, mail_to_list="pinecone1028@163.com,caoruixin@163.com"):
         LOG.info(f"准备发送邮件:{subject}")
         msg = MIMEMultipart()
         msg['From'] = self.email_settings['from']
-        msg['To'] = self.email_settings['to']
+        #msg['To'] = self.email_settings['to']
+        msg['To'] = mail_to_list
         msg['Subject'] = subject
         
         # 将Markdown内容转换为HTML
@@ -59,10 +60,31 @@ class Notifier:
             with smtplib.SMTP_SSL(self.email_settings['smtp_server'], self.email_settings['smtp_port']) as server:
                 LOG.debug("登录SMTP服务器")
                 server.login(msg['From'], self.email_settings['password'])
-                server.sendmail(msg['From'], msg['To'], msg.as_string())
+                
+                # 如果 msg['To'] 是字符串，转换为列表
+                if isinstance(msg['To'], str):
+                    recipients = msg['To'].split(',')
+                else:
+                    recipients = msg['To']
+
+                # 确保 msg['To'] 是逗号分隔的字符串
+                msg['To'] = ', '.join(recipients)
+                LOG.debug(f"最终的收件人列表: {recipients}")
+
+                # `sendmail` 的 `to_addrs` 参数为列表
+                server.sendmail(msg['From'], recipients, msg.as_string())
+
                 LOG.info("邮件发送成功！")
         except Exception as e:
             LOG.error(f"发送邮件失败：{str(e)}")
+    
+    def send_email_tech(self, subject, report):
+        mail_to_list = self.email_settings['tech_to']
+        self.send_email(subject, report, mail_to_list)
+
+    def send_email_crypto(self, subject, report):
+        mail_to_list = self.email_settings['crypto_to']
+        self.send_email(subject, report, mail_to_list)
 
 if __name__ == '__main__':
     from config import Config
@@ -119,7 +141,7 @@ if __name__ == '__main__':
 - https://fortune.com/2024/08/29/nvidia-jensen-huang-ai-customers/
 
 """
-    #notifier.notify_hn_report("2024-09-01", hn_report)
+    notifier.notify_hn_report("2024-09-01", hn_report)
 
     dc_report = '''
     # 【Dogecoin News 热门话题】
@@ -162,4 +184,4 @@ Dogecoin经历了一次历史性的暴涨，价格上涨了112%。分析师们�
 - [newsbtc.com](https://cryptopanic.com/news/dogecoin/20249264/Dogecoin-Explodes-112-Is-1-The-New-Target-After-This-Historic-Rally)
 
     '''
-    notifier.notify_dc_report("2024-11-16", dc_report)
+    #notifier.notify_dc_report("2024-11-16", dc_report)

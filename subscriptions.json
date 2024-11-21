@@ -1,5 +1,6 @@
 [
     "ollama/ollama",
     "vllm-project/vllm",
-    "langchain-ai/langchain"
+    "langchain-ai/langchain",
+    "THUDM/CogVideo"
 ]

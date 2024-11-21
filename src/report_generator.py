@@ -19,6 +19,7 @@ class ReportGenerator:
                 raise FileNotFoundError(f"提示文件未找到: {prompt_file}")
             with open(prompt_file, "r", encoding='utf-8') as file:
                 self.prompts[report_type] = file.read()
+        
 
     def generate_github_report(self, markdown_file_path):
         """
@@ -95,9 +96,20 @@ class ReportGenerator:
         """
         with open(markdown_file_path, 'r') as file:
             markdown_content = file.read()
-        system_prompt = self.prompts.get("dogecoin_hours_topic")
+        ### add for crypto
+            
+        report_type = "dogecoin_hours_topic"
+        prompt_file = f"prompts/{report_type}_{self.llm.model_type_crypto}_prompt.txt"
+        if not os.path.exists(prompt_file):
+            LOG.error(f"提示文件不存在: {prompt_file}")
+            raise FileNotFoundError(f"提示文件未找到: {prompt_file}")
+        with open(prompt_file, "r", encoding='utf-8') as file:
+            self.prompts[report_type] = file.read()
+
+        ### end for crypto
+        system_prompt = self.prompts.get(report_type)
         
-        report = self.llm.generate_report(system_prompt, markdown_content)
+        report = self.llm.generate_report_for_crypto(system_prompt, markdown_content)
         
         report_file_path = os.path.splitext(markdown_file_path)[0] + "_topic.md"
         with open(report_file_path, 'w+') as report_file:
@@ -112,7 +124,20 @@ class ReportGenerator:
         这里的输入是一个目录路径，其中包含所有由 generate_dc_topic_report 生成的 *_topic.md 文件。
         """
         markdown_content = self._aggregate_topic_reports(directory_path)
-        system_prompt = self.prompts.get("dogecoin_daily_report")
+
+        ### add for crypto
+            
+        report_type = "dogecoin_daily_report"
+        prompt_file = f"prompts/{report_type}_{self.llm.model_type_crypto}_prompt.txt"
+        if not os.path.exists(prompt_file):
+            LOG.error(f"提示文件不存在: {prompt_file}")
+            raise FileNotFoundError(f"提示文件未找到: {prompt_file}")
+        with open(prompt_file, "r", encoding='utf-8') as file:
+            self.prompts[report_type] = file.read()
+
+        ### end for crypto
+        
+        system_prompt = self.prompts.get(report_type)
 
         # 获取日期名称（不包括末尾的 /）
         base_name = os.path.basename(directory_path.rstrip('/'))
@@ -121,7 +146,7 @@ class ReportGenerator:
         # 确保目录存在
         os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
         
-        report = self.llm.generate_report(system_prompt, markdown_content)
+        report = self.llm.generate_report_for_crypto(system_prompt, markdown_content)
         
         with open(report_file_path, 'w+') as report_file:
             report_file.write(report)
