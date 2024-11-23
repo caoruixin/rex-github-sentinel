@@ -19,7 +19,7 @@
         "openai_model_name": "gpt-4o-mini",
         "ollama_model_name": "llama3.1:8b-instruct-q8_0",
         "ollama_api_url": "http://localhost:11434/api/chat",
-        "crypto_model_type": "openai"
+        "crypto_model_type": "ollama"
         
     },
     "report_types": [

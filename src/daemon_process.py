@@ -108,7 +108,8 @@ def main():
 
     # 安排 Dogecoin 的定时任务
     schedule.every(4).hours.at(":00").do(dc_topic_job, dogecoin_news_client, report_generator)  # 每4小时执行一次
-    schedule.every().day.at("13:00").do(dc_daily_job, dogecoin_news_client, report_generator, notifier)  # 每天13点执行
+    schedule.every().day.at("08:30").do(dc_daily_job, dogecoin_news_client, report_generator, notifier)  # 每天13点执行
+    print("done")
 
 
     try:
