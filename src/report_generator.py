@@ -87,6 +87,7 @@ class ReportGenerator:
             if filename.endswith("_topic.md"):
                 with open(os.path.join(directory_path, filename), 'r') as file:
                     markdown_content += file.read() + "\n"
+        LOG.debug(f"聚合的 Markdown 内容: {markdown_content}")
         return markdown_content
 
 
@@ -96,7 +97,7 @@ class ReportGenerator:
         """
         with open(markdown_file_path, 'r') as file:
             markdown_content = file.read()
-        ### add for crypto
+        ### add for crypto, read  prompt file for specific model 
             
         report_type = "dogecoin_hours_topic"
         prompt_file = f"prompts/{report_type}_{self.llm.model_type_crypto}_prompt.txt"
@@ -106,6 +107,7 @@ class ReportGenerator:
         with open(prompt_file, "r", encoding='utf-8') as file:
             self.prompts[report_type] = file.read()
 
+        LOG.debug(f" Using prompt file: {prompt_file}")
         ### end for crypto
         system_prompt = self.prompts.get(report_type)
         
@@ -125,7 +127,7 @@ class ReportGenerator:
         """
         markdown_content = self._aggregate_topic_reports(directory_path)
 
-        ### add for crypto
+        ### add for crypto, read  prompt file for specific model 
             
         report_type = "dogecoin_daily_report"
         prompt_file = f"prompts/{report_type}_{self.llm.model_type_crypto}_prompt.txt"
@@ -135,6 +137,7 @@ class ReportGenerator:
         with open(prompt_file, "r", encoding='utf-8') as file:
             self.prompts[report_type] = file.read()
 
+        LOG.debug(f" Using prompt file: {prompt_file}")
         ### end for crypto
         
         system_prompt = self.prompts.get(report_type)
